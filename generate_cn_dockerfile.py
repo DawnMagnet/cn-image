@@ -25,6 +25,8 @@ class DistroConfig:
     enable_crb: bool = True
     enable_rpmfusion: bool = True
     enable_epel: bool = True
+    # Optional docker image path prefix (registry/repo), without tag
+    docker_path: str | None = None
 
 
 DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
@@ -33,12 +35,14 @@ DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
         baseurl="http://dl.rockylinux.org/$contentdir",
         proxyurl="https://mirrors.ustc.edu.cn/rocky",
         pattern="/etc/yum.repos.d/rocky*.repo /etc/yum.repos.d/Rocky*.repo",
+        docker_path="quay.io/rockylinux/rockylinux",
     ),
     "almalinux": DistroConfig(
         base="almalinux",
         baseurl="https://repo.almalinux.org",
         proxyurl="https://mirrors.aliyun.com",
         pattern="/etc/yum.repos.d/almalinux*.repo",
+        docker_path="quay.io/almalinux/almalinux",
     ),
     "centos": DistroConfig(
         base="centos",
@@ -46,6 +50,7 @@ DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
         proxyurl="https://mirrors.ustc.edu.cn/centos-vault/",
         pattern="/etc/yum.repos.d/CentOS-*.repo",
         enable_crb=False,
+        docker_path="quay.io/centos/centos",
     ),
 }
 
@@ -80,11 +85,11 @@ def render_dockerfile(distro: str, version: str, mirror_override: str | None) ->
 
     proxyurl = mirror_override or cfg.proxyurl
     run_line = build_run_command(cfg, version, proxyurl)
-    base_image = f"{cfg.base}:{version}"
-
-    if distro == "rockylinux" and extract_major_version(version) == "10":
-        # quay.io hosts the only available Alma/Rocky 10 images right now
-        base_image = f"quay.io/rockylinux/rockylinux:{version}"
+    # Use custom docker_path if provided, else fall back to base name
+    if cfg.docker_path:
+        base_image = f"{cfg.docker_path}:{version}"
+    else:
+        base_image = f"{cfg.base}:{version}"
 
     return f'FROM {base_image}\nLABEL maintainer="DawnMagnet"\n{run_line}\n'
 
