@@ -1,36 +1,62 @@
-name: Build and push container images to GHCR
+name: CI - build and push CN images
 
 on:
   workflow_dispatch:
-  schedule:
-    # Runs daily at 03:00 UTC. Change the cron if you prefer a different time.
-    - cron: "0 3 * * *"
   push:
-    branches: [main, master]
+    branches: [main]
 
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
-  run-script:
-    name: Run maintain script and push to GHCR
+  build-matrix:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - rockylinux:8
+          - rockylinux:9
+          - rockylinux:10
+          - almalinux:8
+          - almalinux:9
+          - almalinux:10
+          - centos:7
+          - centos:8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Generate Dockerfile
+        id: gen
+        run: |
+          img="${{ matrix.image }}"
+          python3 ./generate_cn_dockerfile.py "$img" --out Dockerfile
+          sanitized=${img//:/-}
+          version=${img#*:}
+          echo "image=$img" >> $GITHUB_OUTPUT
+          echo "sanitized=$sanitized" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Log in to registry using GITHUB_TOKEN
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Make script executable and run
-        env:
-          OVERRIDE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-          SKIP_LOGIN: 1
-        run: |
-          chmod +x ./rhel-image-maintain.sh
-          ./rhel-image-maintain.sh
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ steps.gen.outputs.sanitized }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ steps.gen.outputs.sanitized }}:${{ steps.gen.outputs.version }}
