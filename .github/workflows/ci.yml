@@ -27,8 +27,14 @@ jobs:
         exclude:
           - distro: rockylinux
             version: "7"
+          - distro: rockylinux
+            version: "10"
           - distro: almalinux
             version: "7"
+          - distro: centos
+            version: "9"
+          - distro: centos
+            version: "10"
       fail-fast: false
 
     steps:
