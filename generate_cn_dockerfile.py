@@ -35,7 +35,7 @@ DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
         baseurl="http://dl.rockylinux.org/$contentdir",
         proxyurl="https://mirrors.ustc.edu.cn/rocky",
         pattern="/etc/yum.repos.d/rocky*.repo /etc/yum.repos.d/Rocky*.repo",
-        # docker_path="quay.io/rockylinux/rockylinux",
+        docker_path="quay.io/rockylinux/rockylinux",
     ),
     "almalinux": DistroConfig(
         base="almalinux",
