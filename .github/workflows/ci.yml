@@ -40,12 +40,19 @@ jobs:
           img="${{ matrix.image }}"
           python3 ./generate_cn_dockerfile.py "$img" --out Dockerfile
           distro=${img%%:*}
-            distro_lower=$(echo "$distro" | tr '[:upper:]' '[:lower:]')
-            sanitized=${distro_lower//[^a-z0-9_.-]/-}
+          distro_lower=$(echo "$distro" | tr '[:upper:]' '[:lower:]')
+          sanitized=${distro_lower//[^a-z0-9_.-]/-}
+          case "$distro_lower" in
+            rockylinux) alias="rocky" ;;
+            almalinux) alias="alma" ;;
+            centos) alias="cent" ;;
+            *) alias="$sanitized" ;;
+          esac
           version=${img#*:}
           echo "image=$img" >> $GITHUB_OUTPUT
           echo "sanitized=$sanitized" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
+          echo "alias=$alias" >> $GITHUB_OUTPUT
           owner="${{ github.repository_owner }}"
           owner_lower=$(echo "$owner" | tr '[:upper:]' '[:lower:]')
           echo "owner_lower=$owner_lower" >> $GITHUB_OUTPUT
@@ -65,3 +72,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ steps.gen.outputs.owner_lower }}/${{ steps.gen.outputs.sanitized }}:${{ steps.gen.outputs.version }}
+            ghcr.io/${{ steps.gen.outputs.owner_lower }}/${{ steps.gen.outputs.alias }}:${{ steps.gen.outputs.version }}
