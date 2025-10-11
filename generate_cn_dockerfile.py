@@ -35,14 +35,14 @@ DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
         baseurl="http://dl.rockylinux.org/$contentdir",
         proxyurl="https://mirrors.ustc.edu.cn/rocky",
         pattern="/etc/yum.repos.d/rocky*.repo /etc/yum.repos.d/Rocky*.repo",
-        docker_path="quay.io/rockylinux/rockylinux",
+        # docker_path="quay.io/rockylinux/rockylinux",
     ),
     "almalinux": DistroConfig(
         base="almalinux",
         baseurl="https://repo.almalinux.org",
         proxyurl="https://mirrors.aliyun.com",
         pattern="/etc/yum.repos.d/almalinux*.repo",
-        docker_path="quay.io/almalinux/almalinux",
+        # docker_path="quay.io/almalinux/almalinux",
     ),
     "centos": DistroConfig(
         base="centos",
@@ -50,7 +50,7 @@ DISTRO_REGISTRY: Mapping[str, DistroConfig] = {
         proxyurl="https://mirrors.ustc.edu.cn/centos-vault/",
         pattern="/etc/yum.repos.d/CentOS-*.repo",
         enable_crb=False,
-        docker_path="quay.io/centos/centos",
+        # docker_path="quay.io/centos/centos",
     ),
 }
 

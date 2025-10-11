@@ -17,22 +17,15 @@ jobs:
       matrix:
         image:
           - rockylinux:8
-          - rockylinux:8.5
-          - rockylinux:8.6
-          - rockylinux:8.7
-          - rockylinux:8.8
-          - rockylinux:8.9
           - rockylinux:9
-          - rockylinux:9.0
-          - rockylinux:9.1
-          - rockylinux:9.2
-          - rockylinux:9.3
           - rockylinux:10
           - almalinux:8
           - almalinux:9
           - almalinux:10
           - centos:7
           - centos:8
+          - centos:9
+          - centos:10
       fail-fast: false
     steps:
       - name: Checkout
