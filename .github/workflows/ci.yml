@@ -39,7 +39,9 @@ jobs:
         run: |
           img="${{ matrix.image }}"
           python3 ./generate_cn_dockerfile.py "$img" --out Dockerfile
-          sanitized=${img//:/-}
+          distro=${img%%:*}
+            distro_lower=$(echo "$distro" | tr '[:upper:]' '[:lower:]')
+            sanitized=${distro_lower//[^a-z0-9_.-]/-}
           version=${img#*:}
           echo "image=$img" >> $GITHUB_OUTPUT
           echo "sanitized=$sanitized" >> $GITHUB_OUTPUT
@@ -62,5 +64,4 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ steps.gen.outputs.owner_lower }}/${{ steps.gen.outputs.sanitized }}:latest
             ghcr.io/${{ steps.gen.outputs.owner_lower }}/${{ steps.gen.outputs.sanitized }}:${{ steps.gen.outputs.version }}
