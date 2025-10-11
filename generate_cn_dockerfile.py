@@ -80,8 +80,13 @@ def render_dockerfile(distro: str, version: str, mirror_override: str | None) ->
 
     proxyurl = mirror_override or cfg.proxyurl
     run_line = build_run_command(cfg, version, proxyurl)
+    base_image = f"{cfg.base}:{version}"
 
-    return f'FROM {cfg.base}:{version}\nLABEL maintainer="DawnMagnet"\n{run_line}\n'
+    if distro == "almalinux" and extract_major_version(version) == "10":
+        # quay.io hosts the only available Alma/Rocky 10 images right now
+        base_image = f"quay.io/rockylinux/rockylinux:{version}"
+
+    return f'FROM {base_image}\nLABEL maintainer="DawnMagnet"\n{run_line}\n'
 
 
 def extract_major_version(version: str) -> str:
