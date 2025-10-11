@@ -15,18 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image:
-          - rockylinux:8
-          - rockylinux:9
-          - rockylinux:10
-          - almalinux:8
-          - almalinux:9
-          - almalinux:10
-          - centos:7
-          - centos:8
-          - centos:9
-          - centos:10
+        distro:
+          - rockylinux
+          - almalinux
+          - centos
+        version:
+          - "7"
+          - "8"
+          - "9"
+          - "10"
       fail-fast: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,10 +38,10 @@ jobs:
       - name: Generate Dockerfile
         id: gen
         run: |
-          img="${{ matrix.image }}"
-          python3 ./generate_cn_dockerfile.py "$img" --out Dockerfile
-          distro=${img%%:*}
-          distro_lower=$(echo "$distro" | tr '[:upper:]' '[:lower:]')
+          # Generate Dockerfile using matrix values
+          python3 ./generate_cn_dockerfile.py "${{ matrix.distro }}:${{ matrix.version }}" --out Dockerfile
+          # Use distro and version directly from matrix
+          distro_lower="${{ matrix.distro }}"
           sanitized=${distro_lower//[^a-z0-9_.-]/-}
           case "$distro_lower" in
             rockylinux) alias="rocky" ;;
@@ -50,8 +49,8 @@ jobs:
             centos) alias="cent" ;;
             *) alias="$sanitized" ;;
           esac
-          version=${img#*:}
-          echo "image=$img" >> $GITHUB_OUTPUT
+          version="${{ matrix.version }}"
+          echo "image=${{ matrix.distro }}:${{ matrix.version }}" >> $GITHUB_OUTPUT
           echo "sanitized=$sanitized" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "alias=$alias" >> $GITHUB_OUTPUT
