@@ -6,17 +6,23 @@ Usage
 
 - Generate a Dockerfile for Rocky Linux 8 and write to ./rockylinux-8.Dockerfile:
 
-  ./generate_cn_dockerfile.py rockylinux:8
+  go run main.go rockylinux:8
 
 - Print to stdout:
 
-  ./generate_cn_dockerfile.py almalinux:9 --stdout
+  go run main.go almalinux:9 --stdout
 
 - Override mirror base URL:
 
-  ./generate_cn_dockerfile.py centos:7 --mirror https://mirrors.aliyun.com
+  go run main.go centos:7 --mirror https://mirrors.aliyun.com
+
+- Generate for UBI 9:
+
+  go run main.go ubi:9.4
 
 Notes
 
-- Script only depends on Python standard library so it's safe to run inside CI (GitHub Actions).
-- Supported distros: rockylinux, almalinux, centos
+- Script is written in Go and uses `go run` for execution.
+- Supported distros: rockylinux, almalinux, centos, ubi
+- Automatically handles CRB (EL9+) and PowerTools (EL8).
+- Disables remote sensing/subscription-manager for UBI images.
