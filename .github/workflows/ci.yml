@@ -25,6 +25,7 @@ jobs:
           - "7"
           - "8"
           - "9"
+          - "9.4"
           - "10"
         exclude:
           - distro: rockylinux
