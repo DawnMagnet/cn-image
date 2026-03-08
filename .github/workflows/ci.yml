@@ -21,7 +21,6 @@ jobs:
           - rockylinux
           - almalinux
           - centos
-          - ubi
         version:
           - "7"
           - "8"
